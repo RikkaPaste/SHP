@@ -38,7 +38,8 @@
             type="text"
             id="autocomplete"
             class="input-error input-xxlarge"
-          />
+            v-model="keyword"
+          />  
           <button class="sui-btn btn-xlarge btn-danger" type="button" @click="goSearch">
             搜索
           </button>
@@ -53,13 +54,38 @@ export default {
   name:'Header',
   data() {
     return {
-      
+      keyword:''
     }
   },
   methods: {
     //搜索按钮的回调函数:需要向search路由进行跳转
     goSearch(){
-      this.$router.push('/search')
+      //路由传递参数:
+      //第一种:字符串形式
+      // this.$router.push('/search/'+this.keyword+"?k="+this.keyword.toUpperCase())
+      //第二种:模板字符串
+      // this.$router.push(`/search/${this.keyword}?k=${this.keyword.toUpperCase()}`)
+      //第三种:对象
+      // this.$router.push({name:'search',params:{keyword:this.keyword},query:{k:this.keyword.toUpperCase()}})
+
+      /*******************************************************/
+      //面试题1:路由传递参数（对象写法）path是否可以结合params参数一起使用?
+      //答:路由跳转传参的时候，对象的写法可以是name、path形式，但是需要注意的是，path这种写法不能与params参数一起使用
+      // this.$router.push({path:'/search',params:{keyword:this.keyword},query:{k:this.keyword.toUpperCase()}})
+
+      //2:如何指定params参数可传可不传?
+      //如果路由要求传递params参数，但是你就不传递params参数，发现一件事情，URL会有问题
+      //如何指定params参数可以传递，或者不传递，在配置路由的时候，在占位的后面加上一个问号【params可以传递或者不传递】
+      // this.$router.push({name:'search',query:{k:this.keyword.toUpperCase()}})
+
+      //面试题3:params参数可以传递也可以不传递，但是如果传递是空串，如何解 决?
+      //使用undefined解决：params参数可以传递、不传递（空的字符串 ）
+      // this.$router.push({name:'search',params:{keyword:''||undefined},query:{k:this.keyword.toUpperCase()}})
+
+      //面试题4:路由组件能不能传递props数据?
+      //可以的:三种写法
+      this.$router.push({name:'search',params:{keyword:this.keyword},query:{k:this.keyword.toUpperCase()}})
+
     }
   },
 };
