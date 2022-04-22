@@ -3,7 +3,9 @@
 <script>
 export default {
   data() {
-    return {};
+    return {
+        id:''
+    };
   },
 };
 </script>
