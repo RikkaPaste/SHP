@@ -21,5 +21,8 @@ export default {
 };
 </script>
 
-<style scoped lang="less">
+<style lang="less">
+#nprogress .bar{
+  background-color: rgba(45, 201, 219, 0.712) !important;
+}
 </style>
