@@ -9,7 +9,7 @@ import Login from '@/pages/Login'
 import Register from '@/pages/Register'
 import Search from '@/pages/Search'
 //先把VueRouter原型对象的push，先保存一份
-let originPush = VueRouter.prototype.push;
+let orginPush = VueRouter.prototype.push;
 let orginReplace=VueRouter.prototype.replace;
 //重写push|replace
 //第一个参数：告诉原来push方法，你往哪里跳转（传递哪些参数）
@@ -20,7 +20,7 @@ let orginReplace=VueRouter.prototype.replace;
     //不同点：call与apply传递参数：call传递参数用逗号隔开，apply方法执行，传递数组
 VueRouter.prototype.push = function (location, resolve, reject) {
     if (resolve && reject) {
-        originPush.call(this, location, resolve, reject)
+        orginPush.call(this, location, resolve, reject)
     } else {
         orginPush.call(this, location, () => { }, () => { })
     }
