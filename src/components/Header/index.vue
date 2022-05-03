@@ -39,8 +39,12 @@
             id="autocomplete"
             class="input-error input-xxlarge"
             v-model="keyword"
-          />  
-          <button class="sui-btn btn-xlarge btn-danger" type="button" @click="goSearch">
+          />
+          <button
+            class="sui-btn btn-xlarge btn-danger"
+            type="button"
+            @click="goSearch"
+          >
             搜索
           </button>
         </form>
@@ -51,15 +55,15 @@
 
 <script>
 export default {
-  name:'Header',
+  name: "Header",
   data() {
     return {
-      keyword:''
-    }
+      keyword: "",
+    };
   },
   methods: {
     //搜索按钮的回调函数:需要向search路由进行跳转
-    goSearch(){
+    goSearch() {
       //路由传递参数:
       //第一种:字符串形式
       // this.$router.push('/search/'+this.keyword+"?k="+this.keyword.toUpperCase())
@@ -84,8 +88,19 @@ export default {
 
       //面试题4:路由组件能不能传递props数据?
       //可以的:三种写法
-      this.$router.push({name:'search',params:{keyword:this.keyword},query:{k:this.keyword.toUpperCase()}},()=>{},()=>{})
-    }
+      //下面这种写法可以解决当前这个抛出异常错误的问题，但是将来我们还是会用到push|replace方法进行路由跳转，还是会出现此类问题，
+      //因此我们需要从"根"解决这个问题，就是咱们自己重写push||replace方法，push|replace方法，是VueRouter.prototype原型对象提供的
+
+      //代表的是如果由query参数也带过去
+      if (this.$route.query) {
+        let location = {
+          name: "search",
+          params: { keyword: this.keyword || undefined },
+        };
+        location.query = this.$route.query;
+        this.$router.push(location);
+      }
+    },
   },
 };
 </script>

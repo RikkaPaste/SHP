@@ -4,7 +4,7 @@ module.exports={
     devServer:{
         proxy:{
             '/api':{
-                target:"http://39.98.123.211",//如果请求中带有/api运行代理目标:http://39.98.123.211
+                target:"http://gmall-h5-api.atguigu.cn",//如果请求中带有/api运行代理目标:http://gmall-h5-api.atguigu.cn
                 // pathRewrite:{'^/api':''}//重写路径
             }
         }
