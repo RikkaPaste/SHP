@@ -298,7 +298,7 @@ export default {
     }
     //定义动画时间、速率
     .sort-enter-active {
-      transition: all 0.3s linear;
+      transition: all 0.1s;
     }
     //过渡动画的样式
     //过渡动画开始状态（离开）
@@ -311,7 +311,7 @@ export default {
     }
     //定义动画时间、速率
     .sort-leave-active {
-      transition: all 0.3s linear;
+      transition: all 0.1s;
     }
   }
 }
