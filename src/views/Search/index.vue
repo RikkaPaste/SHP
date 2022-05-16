@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- 商品分类三级列表 -->
     <typeNav />
     <div class="main">
       <div class="py-container">
@@ -11,10 +12,7 @@
             </li>
           </ul>
           <ul class="fl sui-tag">
-            <li class="with-x">手机</li>
-            <li class="with-x">iphone<i>×</i></li>
-            <li class="with-x">华为<i>×</i></li>
-            <li class="with-x">OPPO<i>×</i></li>
+            <li class="with-x" v-if="searchParams.categoryName">{{searchParams.categoryName}}<i>x</i></li>
           </ul>
         </div>
 
