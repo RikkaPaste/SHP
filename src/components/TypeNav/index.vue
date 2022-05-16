@@ -154,6 +154,7 @@ export default {
           this.$router.push(location);
         }
       }
+      this.show=false;
     },
     //当鼠标移入的时候，让商品分类列表进行展示
     enterShow() {
