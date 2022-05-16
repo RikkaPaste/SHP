@@ -13,9 +13,14 @@
           </ul>
           <ul class="fl sui-tag">
             <!-- 分类的面包屑 -->
-            <li class="with-x" v-if="searchParams.categoryName">{{searchParams.categoryName}}<i @click="removeCategoryName">×</i></li>
+            <li class="with-x" v-if="searchParams.categoryName">
+              {{ searchParams.categoryName
+              }}<i @click="removeCategoryName">×</i>
+            </li>
             <!-- 关键字的面包屑 -->
-            <li class="with-x" v-if="searchParams.keyword">{{searchParams.keyword}}<i @click="removeKeyword">×</i></li>
+            <li class="with-x" v-if="searchParams.keyword">
+              {{ searchParams.keyword }}<i @click="removeKeyword">×</i>
+            </li>
           </ul>
         </div>
 
@@ -169,7 +174,7 @@ export default {
   //当前组件挂载完毕之前执行一次【先于mounted之前】
   beforeMount() {
     //再发请求之前，把接口需要传递的参数，进行整理（在给服务器发请求的之前，把参数整理好，服务器就会返回查询的数据）
-   Object.assign(this.searchParams,this.$route.query,this.$route.params)
+    Object.assign(this.searchParams, this.$route.query, this.$route.params);
   },
   mounted() {
     this.getData();
@@ -185,46 +190,50 @@ export default {
       this.$store.dispatch("getSearchList", this.searchParams);
     },
     //删除分类的名字
-    removeCategoryName(){
+    removeCategoryName() {
       //把带给服务器的参数置空了，还需要向服务器发请求
       //带给服务器参数说明可有可无的：如果属性值为空的字符串还是会把相应的字段带给服务器
       //但是你把相应的字段变为undefined，当前这个字段不会带给服务器
-      this.searchParams.categoryName=undefined;
-      this.searchParams.category1Id=undefined;
-      this.searchParams.category2Id=undefined;
-      this.searchParams.category3Id=undefined;
+      this.searchParams.categoryName = undefined;
+      this.searchParams.category1Id = undefined;
+      this.searchParams.category2Id = undefined;
+      this.searchParams.category3Id = undefined;
       this.getData();
       //地址栏也需要改：进行路由的跳转（现在的路由跳转只是跳转到自己这里）
       //严谨：本意是删除query，如果路径当中出现params不因该删除，路由跳转的时候因该带走
-      if(this.$route.params){
-        this.$router.push({name:'search',params:this.$route.params})
+      if (this.$route.params) {
+        this.$router.push({ name: "search", params: this.$route.params });
       }
     },
     //删除关键字
-    removeKeyword(){
+    removeKeyword() {
       //给服务器带的参数searchParams的keyword置空
-      this.searchParams.keyword=undefined;
+      this.searchParams.keyword = undefined;
       //再次发请求
       this.getData();
       //通知兄弟组件Header清除关键字
       this.$bus.$emit("clear");
-    }
+      //进行路由的跳转
+      if (this.$route.query) {
+        this.$router.push({ name: "search", query: this.$route.query });
+      }
+    },
   },
   //数据监听：监听组件实例身上的属性的属性值的变化
-  watch:{
+  watch: {
     //监听路由的信息是否发生变化，如果发生变化，再次发起请求
-    $route(newValue,oldValue){
+    $route(newValue, oldValue) {
       //再次发请求之前整理带给服务器参数
-      Object.assign(this.searchParams,this.$route.query,this.$route.params)
+      Object.assign(this.searchParams, this.$route.query, this.$route.params);
       //再次发起ajax请求
       this.getData();
       //每一次请求完毕，应该把相应的1、2、3级分类的id置空，让它接收下一次相应1、2、3id
       //分类名字与关键字不用清理：因为每一次路由发生变化的时候，都会给它赋予新的数据
-      this.searchParams.category1Id=undefined;
-      this.searchParams.category2Id=undefined;
-      this.searchParams.category3Id=undefined;
-    }
-  }
+      this.searchParams.category1Id = undefined;
+      this.searchParams.category2Id = undefined;
+      this.searchParams.category3Id = undefined;
+    },
+  },
 };
 </script>
 
