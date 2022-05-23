@@ -13,43 +13,30 @@
           </ul>
           <ul class="fl sui-tag">
             <!-- 分类的面包屑 -->
-            <li class="with-x" v-if="searchParams.categoryName">
-              {{ searchParams.categoryName
-              }}<i @click="removeCategoryName">×</i>
-            </li>
+            <li class="with-x" v-if="searchParams.categoryName">{{ searchParams.categoryName}}<i @click="removeCategoryName">×</i></li>
             <!-- 关键字的面包屑 -->
-            <li class="with-x" v-if="searchParams.keyword">
-              {{ searchParams.keyword }}<i @click="removeKeyword">×</i>
-            </li>
+            <li class="with-x" v-if="searchParams.keyword">{{ searchParams.keyword }}<i @click="removeKeyword">×</i> </li>
+            <!-- 品牌的面包屑 -->
+            <li class="with-x" v-if="searchParams.trademark">{{ searchParams.trademark.split(':')[1] }}<i @click="removeTrademark">×</i> </li>
+            <!-- 属性的面包屑 -->
+            <li class="with-x" v-for="(attrValue,index) in searchParams.props" :key="index">{{ attrValue.split(':')[1]}}<i @click="removeAttr(index)">×</i> </li>
           </ul>
         </div>
 
         <!--selector-->
-        <SearchSelector />
+        <SearchSelector @trademarkInfo="trademarkInfo" @attrInfo="attrInfo"/>
 
         <!--details-->
         <div class="details clearfix">
           <div class="sui-navbar">
             <div class="navbar-inner filter">
-              <!-- 价格结构 -->
+              <!-- 排序的结构 -->
               <ul class="sui-nav">
-                <li class="active">
-                  <a href="#">综合</a>
+                <li :class="{active:isOrder}" @click="changeOrder('1')">
+                  <a>综合<span v-show="isOrder" class="iconfont" :class="{'icon-arrow-down':isSort,'icon-arrow-up':!isSort}"></span></a>
                 </li>
-                <li>
-                  <a href="#">销量</a>
-                </li>
-                <li>
-                  <a href="#">新品</a>
-                </li>
-                <li>
-                  <a href="#">评价</a>
-                </li>
-                <li>
-                  <a href="#">价格⬆</a>
-                </li>
-                <li>
-                  <a href="#">价格⬇</a>
+                <li :class="{active:!isOrder}" @click="changeOrder('2')">
+                  <a>价格<span v-show="!isOrder" class="iconfont" :class="{'icon-arrow-down':isSort,'icon-arrow-up':!isSort}"></span></a>
                 </li>
               </ul>
             </div>
@@ -100,36 +87,8 @@
               </li>
             </ul>
           </div>
-          <!-- 分页器 -->
-          <div class="fr page">
-            <div class="sui-pagination clearfix">
-              <ul>
-                <li class="prev disabled">
-                  <a href="#">«上一页</a>
-                </li>
-                <li class="active">
-                  <a href="#">1</a>
-                </li>
-                <li>
-                  <a href="#">2</a>
-                </li>
-                <li>
-                  <a href="#">3</a>
-                </li>
-                <li>
-                  <a href="#">4</a>
-                </li>
-                <li>
-                  <a href="#">5</a>
-                </li>
-                <li class="dotted"><span>...</span></li>
-                <li class="next">
-                  <a href="#">下一页»</a>
-                </li>
-              </ul>
-              <div><span>共10页&nbsp;</span></div>
-            </div>
-          </div>
+          <!-- 分页器:测试分页器阶段，这里数据将来需要替换的 -->
+          <Pagination :pageNo="searchParams.pageNo" :pageSize="searchParams.pageSize" :total="total" :continues="5" @getPageNo="getPageNo"/>
         </div>
       </div>
     </div>
@@ -138,7 +97,7 @@
 
 <script>
 import SearchSelector from "./SearchSelector/SearchSelector";
-import { mapGetters } from "vuex";
+import { mapGetters,mapState} from "vuex";
 export default {
   name: "Search",
   components: {
@@ -158,8 +117,8 @@ export default {
         categoryName: "",
         //关键字
         keyword: "",
-        //排序
-        order: "",
+        //排序:初始状态应该是综合|降序
+        order: "1:desc",
         //分页器:代表当前页数
         pageNo: 1,
         //代表当前页数展示的个数
@@ -182,6 +141,18 @@ export default {
   computed: {
     //mapGetters里面写法：传递的数组，因为getter计算是没有划分模块【home，search】
     ...mapGetters(["goodsList"]),
+    isOrder(){
+      //默认按钮设置综合
+      return this.searchParams.order.indexOf('1')!=-1;
+    },
+    isSort(){
+      //默认以降序排序
+      return this.searchParams.order.indexOf('desc')!=-1;
+    },
+    //获取search模块展示产品一共多少数据
+    ...mapState({
+      total:state=>state.search.searchList.total
+    })
   },
   methods: {
     //向服务器发请求获取search模块数据（根据参数不同返回不同的数据进行展示）
@@ -218,6 +189,58 @@ export default {
         this.$router.push({ name: "search", query: this.$route.query });
       }
     },
+    //自定义事件回调
+    trademarkInfo(trademark) {
+      //1:整理品牌字段的参数 "ID:品牌名称"
+      this.searchParams.trademark=`${trademark.tmId}:${trademark.tmName}`;
+      //再次发请求获取search模块列表数据进行展示
+      this.getData();
+    },
+    //删除品牌的信息
+    removeTrademark(){
+      //将品牌的信息置空
+      this.searchParams.trademark = undefined;
+      //再次发请求
+      this.getData();
+    },
+    //收集平台属性地方回调函数（自定义事件）
+    attrInfo(attr,attrValue){
+    //["属性ID:属性值:属性名"]
+    //参数格式整理好
+    let props=`${attr.attrId}:${attrValue}:${attr.attrName}`;
+    //数组去重
+    if(this.searchParams.props.indexOf(props)===-1)this.searchParams.props.push(props);
+    this.getData();
+    },
+    //removeAttr删除售卖属性
+    removeAttr(index){
+      //再次整理参数
+      this.searchParams.props.splice(index,1);
+      this.getData();
+    },
+    //排序的操作
+    changeOrder(flag){
+      //flag形参：标记，代表用户点击的是综合（1）价格（2）
+      //切割为数组进行逻辑操作
+      let origin=this.searchParams.order.split(':');
+      let newOrder='';
+      if(origin[0]==flag){
+       newOrder=`${flag}:${origin[1]=='desc'?'asc':'desc'}`
+      }else{
+       newOrder=`${flag}:desc`
+      }
+      //将新的order赋予searchParams
+      this.searchParams.order=newOrder
+      //再次发请求
+      this.getData();
+    },
+    //自定义事件的回调函数----获取当前第几页
+    getPageNo(pageNo){
+      //整理带给服务器参数
+      this.searchParams.pageNo=pageNo;
+      //再次发请求
+      this.getData();
+    }
   },
   //数据监听：监听组件实例身上的属性的属性值的变化
   watch: {

@@ -8,9 +8,12 @@ import store from '@/store';
 import TypeNav from '@/components/TypeNav'
 //轮播图组件-----全局组件
 import Corsousel from '@/components/Corsousel'
+//分页器
+import Pagination from '@/components/Pagination'
 //第一个参数:全局组件的名字 第二个参数:哪一个组件
 Vue.component(TypeNav.name, TypeNav);
 Vue.component(Corsousel.name,Corsousel);
+Vue.component(Pagination.name,Pagination);
 //引入MockServer.js----mock数据
 import '@/mock/mockServe';
 //引入swiper样式
