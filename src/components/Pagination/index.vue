@@ -27,7 +27,7 @@
     </button>
 
     <button style="margin-left: 30px">共 {{ total }} 条</button>
-    <div>到:<input style="width:30px; margin: 0 3px; padding-left: 20px" v-model="toPageNo" @change="goToPageNo"/>页</div>
+    <!-- <div>到:<input style="width:30px; margin: 0 3px; padding-left: 20px" v-model="toPageNo" @change="goToPageNo"/>页</div> -->
   </div>
 </template>
 
