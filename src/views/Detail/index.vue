@@ -379,12 +379,27 @@ export default {
       }
     },
     //加入购物车的回调函数
-    addShopcar(){
+   async addShopcar(){
       //1:发请求---将产品加入到数据库（通知服务器）
+      /*当前这里是派发一个action，也向服务器发请求 判断加入购物车是成功还是失败了，进行相应的操作。
       this.$store.dispatch('addOrUpdateShopCart',{skuid:this.$route.params.skuId,skuNum:this.skuNum})
-      //2:服务器存储成功---进行路由跳转传递参数
-      //3:失败，给用户进行提示
-    }
+      上面这行代码说白了：调用仓库中的addOrUpdateShopCart，这个方法加上async，返回一定是一个Promise
+      要么成功|要么失败
+      */
+        try {
+          await this.$store.dispatch('addOrUpdateShopCart',{skuId:this.$route.params.skuid,skuNum:this.skuNum})
+          //3:路由跳转
+          //4:在路由跳转的时候还需要将产品的信息带给下一级的路由组件
+          //一些简单的数据skuNum，通过query形式给路由组件传递过去
+          //产品信息的数据【比较复杂：skuInfo】,通过会话存储（不持久化，会话结束数据消失）
+          //本地存储|会话存储，一般存储的是字符串
+          sessionStorage.setItem('SKUINFO',JSON.stringify(this.skuInfo))
+          this.$router.push({name:'addcartsuccess',query:{skuInfo:this.skuInfo,skuNum:this.skuNum}})
+          //5:
+        } catch (error) {
+          alert(error.message);
+        }
+      }
   },
 };
 </script>
