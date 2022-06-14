@@ -28,10 +28,10 @@ const actions = {
         let result = await reqAddOrUpdateShopCart(skuId, skuNum);
         //代表服务器加入购物车成功
         if (result.code == 200) {
-            return 'ok';
+            return result.message;
         } else {
             //代表加入购物车失败
-            return Promise.reject(new Error('faile'));
+            return Promise.reject(new Error(result.message));
         }
     }
 }

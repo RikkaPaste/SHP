@@ -38,13 +38,13 @@
               type="text"
               minnum="1"
               class="itxt"
-              :value="cart.skNum"
+              :value="cart.skuNum"
               @change="handlder('change', $event.target.value * 1, cart)"
             />
             <a class="plus" @click="handlder('add', 1, cart)">+</a>
           </li>
           <li class="cart-list-con6">
-            <span class="sum">{{ cart.skuPrice * cart.skuPrice }}</span>
+            <span class="sum">{{ cart.skuNum * cart.skuPrice }}</span>
           </li>
           <li class="cart-list-con7">
             <a class="sindelet" @click="deleteCaryById(cart)">删除</a>
@@ -56,7 +56,12 @@
     </div>
     <div class="cart-tool">
       <div class="select-all">
-        <input class="chooseAll" type="checkbox" :checked="isAllCheck" />
+        <input
+          class="chooseAll"
+          type="checkbox"
+          :checked="isAllCheck && cartInfoList.length > 0"
+          @change="updateAllCart"
+        />
         <span>全选</span>
       </div>
       <div class="option">
@@ -126,13 +131,15 @@ export default {
         });
         //再一次获取服务器最新的数据进行展示
         this.getData();
-      } catch (error) {}
+      } catch (error) {
+        alert(error.message);
+      }
     }, 500),
 
     //删除某一个产品的操作
     async deleteCaryById(cart) {
       try {
-        await this.$store.dispatch("deleteCaryListBySkuId", cart.id);
+        await this.$store.dispatch("deleteCaryListBySkuId", cart.skuId);
         this.getData();
       } catch (error) {
         alert(error.message);
@@ -145,7 +152,7 @@ export default {
       try {
         //如果修改数据成功，再次获取服务器数据（购物车）
         await this.$store.dispatch("updateCheckedById", {
-          skuId: cart.id,
+          skuId: cart.skuId,
           isChecked: event.target.checked ? 1 : 0,
         });
         this.getData();
@@ -156,16 +163,28 @@ export default {
 
     //删除全部选中的产品
     //这个回到函数咱们没办法搜集到一些有用数据
-   async deleteAllCheckedCart(){
+    async deleteAllCheckedCart() {
       //派发一个aciton
-     try {
-       await this.$store.dispatch('deleteAllCheckedCart');
-       //再次请求获取购物车列表
-       this.getData();
-     } catch (error) {
-       alert(error.message);
-     }
-    }
+      try {
+        await this.$store.dispatch("deleteAllCheckedCart");
+        //再次请求获取购物车列表
+        this.getData();
+      } catch (error) {
+        alert(error.message);
+      }
+    },
+
+    //修改全部产品的选中状态
+    async updateAllCart(event) {
+      let isChecked = event.target.checked ? 1 : 0;
+      //派发action
+      try {
+        await this.$store.dispatch("updateAllCartIsChecked", isChecked);
+        this.getData();
+      } catch (error) {
+        alert(error.message);
+      }
+    },
   },
   computed: {
     ...mapGetters(["cartList"]),
@@ -175,12 +194,11 @@ export default {
     },
     //计算购买产品的总价
     totalPrice() {
-      return this.cartInfoList.redules(
-        (frontCart, backCart) =>
-          frontCart.skuPrice * frontCart.skuNum +
-          backCart.skuPrice * backCart.skuNum,
-        0
-      );
+      let sum = 0;
+      this.cartInfoList.forEach((item) => {
+        sum += item.skuNum * item.skuPrice;
+      });
+      return sum;
     },
     //判断底部复选框是否勾选【全部产品都选中，才勾选】
     isAllCheck() {

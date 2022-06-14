@@ -1,10 +1,10 @@
 import { reqCartList, reqDeleteCartById, reqUpdateChechedById } from "@/api"
 const state = {
-    cartlist: []
+    cartList: []
 }
 const mutations = {
-    GETCARTLIST(state, cartlist) {
-        state.cartlist = cartlist;
+    GETCARTLIST(state, cartList) {
+        state.cartList = cartList;
     }
 }
 const actions = {
@@ -19,18 +19,18 @@ const actions = {
     async deleteCaryListBySkuId({ commit }, skuId) {
         let result = await reqDeleteCartById(skuId);
         if (result.code == 200) {
-            return 'ok';
+            return result.message;
         } else {
-            return Promise.reject(new Error('faile'));
+            return Promise.reject(new Error(result.message));
         }
     },
     //修改购物车某一个产品的选中状态
     async updateCheckedById({ commit }, { skuId, isChecked }) {
         let result = await reqUpdateChechedById(skuId, isChecked);
         if (result.code == 200) {
-            return 'ok';
+            return result.message;
         } else {
-            return Promise.reject(new Error('faile'));
+            return Promise.reject(new Error(result.message));
         }
     },
     //删除全部勾选的产品
@@ -39,23 +39,29 @@ const actions = {
         //获取购物车中全部的产品（是一个数组）
         let PromiseAll = [];
         getters.cartList.cartInfoList.forEach(item => {
-            let promise = item.isChecked?dispatch('deleteCaryListBySkuId', itme.skuId):'';
+            let promise = item.isChecked ? dispatch('deleteCaryListBySkuId', item.skuId) : '';
             //将每一次返回的Promise添加到数组当中
-            Promise.push(promise);
+            PromiseAll.push(promise);
         });
         //只要全部p1|p2...都成功，返回结果即为成功
         //如果有一个失败，返回即为失败结果
         return Promise.all(PromiseAll);
+    },
+    //修改全部产品的状态
+    updateAllCartIsChecked({ dispatch, state }, isChecked) {
+        let promiseAll = [];
+        state.cartList[0].cartInfoList.forEach(item => {
+            let promise = dispatch('updateCheckedById', { skuId: item.skuId, isChecked });
+            promiseAll.push(promise);
+        })
+        //最终返回结果
+        return Promise.all(promiseAll);
     }
 }
 const getters = {
     cartList(state) {
         return state.cartList[0] || {};
     },
-    //计算出来购物车数据
-    cartInfoList(state) {
-        return this.cartList
-    }
 }
 export default {
     state,
