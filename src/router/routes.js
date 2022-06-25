@@ -6,8 +6,50 @@ import Search from '@/views/Search'
 import Detail from '@/views/Detail'
 import AddCartSuccess from '@/views/AddCartSuccess'
 import ShopCart from '@/views/ShopCart'
+import Trade from '@/views/Trade'
+import Pay from '@/views/Pay'
+import PaySuccess from '@/views/PaySuccess'
+import Center from '@/views/Center'
+//引入二级路由组件
+import MyOrder from '@/views/Center/myOrder'
+import GroupOrder from '@/views/Center/groupOrder'
 
 export default [
+    {
+        path: '/center',
+        component: Center,
+        meta: { show: true },
+        //二级路由组件
+        children: [
+            {
+                path: 'myorder',
+                component: MyOrder,
+            },
+            {
+                path: 'grouporder',
+                component: GroupOrder,
+            },
+            {
+                path: '/center',
+                redirect:'/center/myorder'
+            }
+        ]
+    },
+    {
+        path: '/paysuccess',
+        component: PaySuccess,
+        meta: { show: true }
+    },
+    {
+        path: '/pay',
+        component: Pay,
+        meta: { show: true }
+    },
+    {
+        path: '/trade',
+        component: Trade,
+        meta: { show: true }
+    },
     {
         path: '/shopcart',
         component: ShopCart,
@@ -15,7 +57,7 @@ export default [
     },
     {
         path: '/addcartsuccess',
-        name:'addcartsuccess',
+        name: 'addcartsuccess',
         component: AddCartSuccess,
         meta: { show: true }
     },
