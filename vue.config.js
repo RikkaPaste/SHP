@@ -1,4 +1,6 @@
 module.exports={
+    publicPath: './',
+    productionSourceMap:false,
     //关闭eslint
     lintOnSave:false,
     devServer:{
