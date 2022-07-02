@@ -1,90 +1,99 @@
 //引入一级路由组件
-import Home from '@/views/Home'
-import Login from '@/views/Login'
-import Register from '@/views/Register'
-import Search from '@/views/Search'
-import Detail from '@/views/Detail'
-import AddCartSuccess from '@/views/AddCartSuccess'
-import ShopCart from '@/views/ShopCart'
-import Trade from '@/views/Trade'
-import Pay from '@/views/Pay'
-import PaySuccess from '@/views/PaySuccess'
-import Center from '@/views/Center'
-//引入二级路由组件
-import MyOrder from '@/views/Center/myOrder'
-import GroupOrder from '@/views/Center/groupOrder'
-
+/**
+ * 当打包构建应用时，JavaScript 包含变得非常大，影响页面加载。
+ * 如果我们能把不同路由对应的组件分割成不同代码块，然后当路由被访问的时候才加载对应组件，这样就更加高效了。
+ */
 export default [
     {
         path: '/center',
-        component: Center,
+        component: () => import('@/views/Center'),
         meta: { show: true },
         //二级路由组件
         children: [
             {
                 path: 'myorder',
-                component: MyOrder,
+                component: () => import('@/views/Center/myOrder'),
             },
             {
                 path: 'grouporder',
-                component: GroupOrder,
+                component: () => import('@/views/Center/groupOrder'),
             },
             {
                 path: '/center',
-                redirect:'/center/myorder'
+                redirect: '/center/myorder'
             }
         ]
     },
     {
         path: '/paysuccess',
-        component: PaySuccess,
+        component: () => import('@/views/PaySuccess'),
         meta: { show: true }
     },
     {
         path: '/pay',
-        component: Pay,
-        meta: { show: true }
+        component: () => import('@/views/Pay'),
+        meta: { show: true },
+        //路由独享守卫
+        beforeEnter: (to, from, next) => {
+            //去交易页面，必须是从购物车而来
+            if (from.path == '/trade') {
+                next();
+            } else {
+                //其他的路由组件而来，停留在当前
+                next(false);
+            }
+        }
     },
     {
         path: '/trade',
-        component: Trade,
-        meta: { show: true }
+        component: () => import('@/views/Trade'),
+        meta: { show: true },
+        //路由独享守卫
+        beforeEnter: (to, from, next) => {
+            //去交易页面，必须是从购物车而来
+            if (from.path == '/shopcart') {
+                next();
+            } else {
+                //其他的路由组件而来，停留在当前
+                next(false);
+            }
+        }
     },
     {
         path: '/shopcart',
-        component: ShopCart,
+        component: () => import('@/views/ShopCart'),
         meta: { show: true }
     },
     {
         path: '/addcartsuccess',
         name: 'addcartsuccess',
-        component: AddCartSuccess,
+        component: () => import('@/views/AddCartSuccess'),
         meta: { show: true }
     },
     {
         path: '/detail/:skuid',
-        component: Detail,
+        component: () => import('@/views/Detail'),
         meta: { show: true }
     },
     {
         path: '/home',
-        component: Home,
+        component: () => import('@/views/Home'),
         //路由元信息key不能瞎写:只能叫做meta
         meta: { show: true }
     },
     {
         path: '/login',
-        component: Login,
+        component: () => import('@/views/Login'),
         meta: { show: false }
     },
     {
         path: '/register',
-        component: Register,
+        component: () => import('@/views/Register'),
         meta: { show: false }
     },
     {
         path: '/search/:keyword',
-        component: Search,
+        component: () => import('@/views/Search'),
         meta: { show: true },
         name: 'search',
         //路由组件能不能传递props数据?
